@@ -8,8 +8,11 @@ namespace BattleShip.GameEngine
 {
     public class Boat
     {
-        public int ID { get; set; }
+        public int Id { get; set; }
         public BoatType Type { get; set; }
-        public List<Position> Hits { get; set; }
+        public List<BoatHit> Hits { get; set; }
+        public Player Player { get; set; }
+
+        public int BoatTypeId { get; set; }
     }
 }

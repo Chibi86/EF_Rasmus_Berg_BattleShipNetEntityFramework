@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BattleShip.GameEngine
 {
-    public class Hit
+    public class BoatType
     {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int Size { get; set; }
     }
 }
