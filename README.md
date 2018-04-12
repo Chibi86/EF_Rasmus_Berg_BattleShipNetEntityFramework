@@ -1,2 +1,2 @@
 # BattleShipNetEntityFramework
-Entity Framework mall for BattleShipNet
+Entity Framework template for BattleShipNet
