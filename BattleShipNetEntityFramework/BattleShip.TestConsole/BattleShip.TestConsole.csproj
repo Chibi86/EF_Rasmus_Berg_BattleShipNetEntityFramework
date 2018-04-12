@@ -48,5 +48,18 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BattleShip.Domain\BattleShip.Domain.csproj">
+      <Project>{f815c6af-42b6-49f9-a55c-e5e23322e7ad}</Project>
+      <Name>BattleShip.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BattleShip.GameEngine\BattleShip.GameEngine.csproj">
+      <Project>{e66c18bf-e559-49f1-b09f-d6d2072ee783}</Project>
+      <Name>BattleShip.GameEngine</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

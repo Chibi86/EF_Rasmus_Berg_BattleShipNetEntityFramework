@@ -70,7 +70,8 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id from session</param>
         /// <param name="privateGame">If game is private (need invite to join)</param>
-        public void NewGame(int accountId, bool privateGame = false)
+        /// <returns>Task with gamebord's GameKey</returns>
+        public async Task<string> NewGame(int accountId, bool privateGame = false)
         {
             string gameKey;
 
@@ -89,8 +90,10 @@ namespace BattleShip.GameEngine
 
             NewPlayer(gameKey, accountId, out player);
 
-            _context.GameBoards.AddAsync(gameBoard);
+            await _context.GameBoards.AddAsync(gameBoard);
             _context.SaveChanges();
+
+            return gameKey;
         }
 
         /// <summary>
@@ -223,7 +226,7 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="gameBoardKey">GameBoard key</param>
         /// <param name="accountId">Account id from session</param>
-        public void NewPlayer(string gameBoardKey, int accountId, out Player player)
+        private void NewPlayer(string gameBoardKey, int accountId, out Player player)
         {
             int countPlayers = (from p in _context.Players where p.GameBoardKey == gameBoardKey select p.Id).Count();
 
@@ -471,23 +474,6 @@ namespace BattleShip.GameEngine
         /// <returns>Result</returns>
         public bool IsAnyBoatHere(int playerId, int startX, int endX, int startY, int endY)
         {
-
-            //int startX = 9;
-            //int endX = 0;
-            //int startY = 9;
-            //int endY = 0;
-            //foreach (Position position in positions)
-            //{
-            //    if (position.X < startX)
-            //        startX = position.X;
-            //    if (position.X > endX)
-            //        endX = position.X;
-            //    if (position.Y < startY)
-            //        startY = position.Y;
-            //    if (position.Y > endY)
-            //        endY = position.Y;
-            //}
-
             List<BoatPosition> boatPositions = (from bp in _context.BoatPositions
                                                 join p in _context.Positions
                                                 on bp.PositionId equals p.Id
@@ -535,6 +521,15 @@ namespace BattleShip.GameEngine
         public List<Position> GetPositionsBetweenXAndY(int startX, int endX, int startY, int endY)
         {
             return _context.Positions.Where(p => p.X >= startX && p.X <= endX && p.Y >= startY && p.Y >= endY).ToList();
+        }
+
+        public async void RemoveOldGameBoard()
+        {
+            List<GameBoard> gameBoards = await (from g in _context.GameBoards
+                                                join p in _context.Players on g.GameKey equals p.GameBoardKey
+                                                where g.LastUpdate < DateTime.Now.AddMonths(-1) && p.HaveSeenEndScreen == true select g)
+                                                .ToListAsync();
+            _context.GameBoards.RemoveRange(gameBoards);
         }
     }
 }
