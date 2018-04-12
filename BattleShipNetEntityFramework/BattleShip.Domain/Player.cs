@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace BattleShip.GameEngine
+namespace BattleShip.Domain
 {
     public class Player
     {
@@ -15,6 +15,21 @@ namespace BattleShip.GameEngine
         public GameBoard GameBoard { get; set; }
 
         public int AccountId { get; set; }
-        public int GameBoardId { get; set; }
+        public string GameBoardKey { get; set; }
+
+        public bool Lost
+        {
+            get
+            {
+                return (Boats.Find(bp => !bp.Boat.Sink) == null);
+            }
+        }
+
+        public Player()
+        {
+            Boats = new List<PlayerBoat>();
+            AlreadyHitPositions = new List<PlayerHit>();
+            HaveSeenEndScreen = false;
+        }
     }
 }

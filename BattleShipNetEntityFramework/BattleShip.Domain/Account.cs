@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BattleShip.GameEngine
+namespace BattleShip.Domain
 {
     public class Account
     {
@@ -21,11 +21,19 @@ namespace BattleShip.GameEngine
 
                 foreach(Player player in Players)
                 {
-                    gameboards.Add(player.GameBoard);
+                    if(player.GameBoard != null)
+                    {
+                        gameboards.Add(player.GameBoard);
+                    }
                 }
 
                 return gameboards;
             }
+        }
+
+        public Account()
+        {
+            Players = new List<Player>();
         }
     }
 }

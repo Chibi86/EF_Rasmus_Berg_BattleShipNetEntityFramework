@@ -1,4 +1,4 @@
-﻿namespace BattleShip.GameEngine
+﻿namespace BattleShip.Domain
 {
     public class PlayerBoat
     {
