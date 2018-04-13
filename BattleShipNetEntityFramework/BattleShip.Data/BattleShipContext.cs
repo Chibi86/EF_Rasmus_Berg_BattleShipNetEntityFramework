@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using BattleShip.Domain;
 using System.Configuration;
 
@@ -47,7 +44,8 @@ namespace BattleShip.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["BattleShipContext"].ConnectionString);
+            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["BattleShipContext"].ConnectionString);
+            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = BattleShipNet; Trusted_Connection = True;");
         }
     }
 }

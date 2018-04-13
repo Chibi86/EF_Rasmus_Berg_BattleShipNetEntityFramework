@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-//using BattleShip.Domain;
+using BattleShip.Domain;
 
 namespace BattleShip.TestConsole
 {
     class Program
     {
-        private static GameEngine.GameEngine gameEngine = new GameEngine.GameEngine();
 
         static void Main(string[] args)
         {
-            AddAccount();
+            //AddAccount();
+            Login();
         }
 
         private static void AddAccount()
         {
             try
             {
-                gameEngine.NewAccount("WrickedGamer", "Test123", "wrickedgamer@example.com");
-                gameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
+                GameEngine.GameEngine.NewAccount("WrickedGamer", "Test123", "wrickedgamer@example.com");
+                GameEngine.GameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
 
                 Console.WriteLine("Accounts added!");
             }
@@ -31,24 +31,24 @@ namespace BattleShip.TestConsole
             }
         }
 
-        //private static void Login()
-        //{
-        //    try
-        //    {
-        //        Task<Account> account = gameEngine.Login("WrickedGamer", "Test123");
-        //        Console.WriteLine("Account logged in!");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void Login()
+        {
+            try
+            {
+                /*Task<*/Account/*>*/ account = GameEngine.GameEngine.Login("WrickedGamer", "Test1234");
+                Console.WriteLine("Account " + account/*.Result*/.UserName + " now logged in!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
         //private static void GetAccount()
         //{
         //    try
         //    {
-        //        Task<Account> account = gameEngine.GetAccount(1);
+        //        Task<Account> account = GameEngine.GameEngine.GetAccount(1);
 
         //        if(account != null)
         //        {
@@ -65,7 +65,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        Task<string> gameKey = gameEngine.NewGame(1, true);
+        //        Task<string> gameKey = GameEngine.GameEngine.NewGame(1, true);
         //        Console.WriteLine("New game added with gamekey: " + gameKey.Result);
         //    }
         //    catch (Exception ex)
@@ -78,7 +78,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        Task<string> gameKey = gameEngine.NewGame(1, true);
+        //        Task<string> gameKey = GameEngine.GameEngine.NewGame(1, true);
         //        Console.WriteLine("New game added with gamekey: " + gameKey.Result);
         //    }
         //    catch (Exception ex)
@@ -91,7 +91,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        gameEngine.JoinGame("abc123", 2);
+        //        GameEngine.GameEngine.JoinGame("abc123", 2);
         //        Console.WriteLine("You have join game!");
         //    }
         //    catch (Exception ex)
@@ -104,7 +104,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        bool result = gameEngine.GameKeyExist("abc123");
+        //        bool result = GameEngine.GameEngine.GameKeyExist("abc123");
 
         //        if (result)
         //        {
@@ -126,7 +126,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        Task<GameBoard> game = gameEngine.GetGame("abc123");
+        //        Task<GameBoard> game = GameEngine.GameEngine.GetGame("abc123");
         //        Console.WriteLine(String.Format("Game {0} started by {1}", game.Result.GameKey, game.Result.Players.ElementAt(1).Name);
         //    }
         //    catch (Exception ex)
@@ -139,7 +139,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        Task<List<GameBoard>> games = gameEngine.GetOpenGames();
+        //        Task<List<GameBoard>> games = GameEngine.GameEngine.GetOpenGames();
 
         //        Console.WriteLine("Existing open games:");
 
@@ -158,7 +158,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        Task<List<GameBoard>> games = gameEngine.GetAccountGames(1);
+        //        Task<List<GameBoard>> games = GameEngine.GameEngine.GetAccountGames(1);
 
         //        Console.WriteLine("Account games:");
 
@@ -177,7 +177,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        bool result = gameEngine.Shoot(1, "ABC123", 1, 1);
+        //        bool result = GameEngine.GameEngine.Shoot(1, "ABC123", 1, 1);
 
         //        Console.WriteLine("Shoot at position 1,1 on player 1 - Result:" + result.ToString());
 
@@ -192,7 +192,7 @@ namespace BattleShip.TestConsole
         //{
         //    try
         //    {
-        //        gameEngine.RemoveOldGameBoard();
+        //        GameEngine.GameEngine.RemoveOldGameBoard();
 
         //        Console.WriteLine("Removed old gameboards!");
 

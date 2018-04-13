@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F815C6AF-42B6-49F9-A55C-E5E23322E7AD}</ProjectGuid>
+    <ProjectGuid>{35CA1591-0C24-4839-93E0-C7DF45593ED9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BattleShip.GameEngine</RootNamespace>
-    <AssemblyName>BattleShip.GameEngine</AssemblyName>
+    <RootNamespace>BattleShip.Domain</RootNamespace>
+    <AssemblyName>BattleShip.Domain</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

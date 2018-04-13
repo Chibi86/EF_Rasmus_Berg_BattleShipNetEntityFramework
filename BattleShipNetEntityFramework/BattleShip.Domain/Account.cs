@@ -19,9 +19,9 @@ namespace BattleShip.Domain
             {
                 List<GameBoard> gameboards = new List<GameBoard>();
 
-                foreach(Player player in Players)
+                foreach (Player player in Players)
                 {
-                    if(player.GameBoard != null)
+                    if (player.GameBoard != null)
                     {
                         gameboards.Add(player.GameBoard);
                     }
