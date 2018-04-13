@@ -4,14 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
 namespace BattleShip.Data.Migrations
 {
     [DbContext(typeof(BattleShipContext))]
-    partial class BattleShipContextModelSnapshot : ModelSnapshot
+    [Migration("20180413095655_RemovePlayerBoat")]
+    partial class RemovePlayerBoat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,7 +104,7 @@ namespace BattleShip.Data.Migrations
 
                     b.Property<bool>("Private");
 
-                    b.Property<int?>("TurnPlayerId");
+                    b.Property<int>("TurnPlayerId");
 
                     b.HasKey("Key");
 
@@ -203,7 +206,8 @@ namespace BattleShip.Data.Migrations
                 {
                     b.HasOne("BattleShip.Domain.Player", "TurnPlayer")
                         .WithMany()
-                        .HasForeignKey("TurnPlayerId");
+                        .HasForeignKey("TurnPlayerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.Player", b =>

@@ -14,7 +14,6 @@ namespace BattleShip.Data
         public DbSet<Position> Positions { get; set; }
 
         public DbSet<PlayerHit> PlayerHits { get; set; }
-        public DbSet<PlayerBoat> PlayerBoats { get; set; }
         public DbSet<BoatHit> BoatHits { get; set; }
         public DbSet<BoatPosition> BoatPositions { get; set; }
 
@@ -23,7 +22,7 @@ namespace BattleShip.Data
             modelBuilder.Entity<Account>().Ignore(a => a.GameBoards);
 
             modelBuilder.Entity<GameBoard>()
-                .HasKey(g => new { g.GameKey });
+                .HasKey(g => new { g.Key });
 
             modelBuilder.Entity<GameBoard>()
                 .HasOne(g => g.TurnPlayer)
@@ -37,7 +36,6 @@ namespace BattleShip.Data
             modelBuilder.Entity<Position>().HasIndex(p => new { p.X, p.Y }).IsUnique();
 
             modelBuilder.Entity<PlayerHit>().HasKey(ph => new { ph.PlayerId, ph.PositionId });
-            modelBuilder.Entity<PlayerBoat>().HasKey(pb => new { pb.PlayerId, pb.BoatId });
             modelBuilder.Entity<BoatPosition>().HasKey(bp => new { bp.BoatId, bp.PositionId });
             modelBuilder.Entity<BoatHit>().HasKey(bh => new { bh.BoatId, bh.PositionId });
         }

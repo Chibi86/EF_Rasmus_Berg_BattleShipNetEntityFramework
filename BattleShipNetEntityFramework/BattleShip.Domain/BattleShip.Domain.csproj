@@ -49,7 +49,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Relations objects\BoatHit.cs" />
     <Compile Include="Relations objects\BoatPosition.cs" />
-    <Compile Include="Relations objects\PlayerBoat.cs" />
     <Compile Include="Relations objects\PlayerHit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

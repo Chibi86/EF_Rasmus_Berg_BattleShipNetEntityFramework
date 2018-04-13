@@ -4,14 +4,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using System;
 
 namespace BattleShip.Data.Migrations
 {
     [DbContext(typeof(BattleShipContext))]
-    partial class BattleShipContextModelSnapshot : ModelSnapshot
+    [Migration("20180413093610_RenameGameBoardKey")]
+    partial class RenameGameBoardKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,7 @@ namespace BattleShip.Data.Migrations
 
                     b.Property<int>("BoatTypeId");
 
-                    b.Property<int>("PlayerId");
+                    b.Property<int?>("PlayerId");
 
                     b.HasKey("Id");
 
@@ -101,7 +104,7 @@ namespace BattleShip.Data.Migrations
 
                     b.Property<bool>("Private");
 
-                    b.Property<int?>("TurnPlayerId");
+                    b.Property<int>("TurnPlayerId");
 
                     b.HasKey("Key");
 
@@ -128,6 +131,19 @@ namespace BattleShip.Data.Migrations
                     b.HasIndex("GameBoardKey");
 
                     b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("BattleShip.Domain.PlayerBoat", b =>
+                {
+                    b.Property<int>("PlayerId");
+
+                    b.Property<int>("BoatId");
+
+                    b.HasKey("PlayerId", "BoatId");
+
+                    b.HasIndex("BoatId");
+
+                    b.ToTable("PlayerBoats");
                 });
 
             modelBuilder.Entity("BattleShip.Domain.PlayerHit", b =>
@@ -168,9 +184,8 @@ namespace BattleShip.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BattleShip.Domain.Player", "Player")
-                        .WithMany("Boats")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("PlayerId");
                 });
 
             modelBuilder.Entity("BattleShip.Domain.BoatHit", b =>
@@ -203,7 +218,8 @@ namespace BattleShip.Data.Migrations
                 {
                     b.HasOne("BattleShip.Domain.Player", "TurnPlayer")
                         .WithMany()
-                        .HasForeignKey("TurnPlayerId");
+                        .HasForeignKey("TurnPlayerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.Player", b =>
@@ -216,6 +232,19 @@ namespace BattleShip.Data.Migrations
                     b.HasOne("BattleShip.Domain.GameBoard", "GameBoard")
                         .WithMany("Players")
                         .HasForeignKey("GameBoardKey");
+                });
+
+            modelBuilder.Entity("BattleShip.Domain.PlayerBoat", b =>
+                {
+                    b.HasOne("BattleShip.Domain.Boat", "Boat")
+                        .WithMany()
+                        .HasForeignKey("BoatId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BattleShip.Domain.Player", "Player")
+                        .WithMany("Boats")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.PlayerHit", b =>

@@ -6,9 +6,9 @@ namespace BattleShip.Domain
 {
     public class GameBoard
     {
-        public string GameKey { get; set; }
+        public string Key { get; set; }
         public bool Private { get; set; }
-        public int TurnPlayerId { get; set; }
+        public int? TurnPlayerId { get; set; }
 
         public List<Player> Players { get; set; }
         public Player TurnPlayer { get; set; }
@@ -33,14 +33,14 @@ namespace BattleShip.Domain
         {
             get
             {
-                return (Players.ElementAt(0).HaveSeenEndScreen && Players.ElementAt(1).HaveSeenEndScreen);
+                return ((Players.Count == 2) && Players.ElementAt(0).HaveSeenEndScreen && Players.ElementAt(1).HaveSeenEndScreen);
             }
         }
 
         public GameBoard()
         {
             Players = new List<Player>();
-            LastUpdate = new DateTime();
+            LastUpdate = DateTime.Now;
         }
     }
 }

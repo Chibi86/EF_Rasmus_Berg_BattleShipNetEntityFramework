@@ -130,6 +130,18 @@
     <Compile Include="Migrations\20180408130029_RenameTurnIdToTurnPlayerId.Designer.cs" />
     <Compile Include="Migrations\20180410104720_AddGameBoardLastUpdate.cs" />
     <Compile Include="Migrations\20180410104720_AddGameBoardLastUpdate.Designer.cs" />
+    <Compile Include="Migrations\20180413093610_RenameGameBoardKey.cs" />
+    <Compile Include="Migrations\20180413093610_RenameGameBoardKey.designer.cs">
+      <DependentUpon>20180413093610_RenameGameBoardKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20180413095655_RemovePlayerBoat.cs" />
+    <Compile Include="Migrations\20180413095655_RemovePlayerBoat.designer.cs">
+      <DependentUpon>20180413095655_RemovePlayerBoat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20180413103603_NotRequiredPlayerTurnId.cs" />
+    <Compile Include="Migrations\20180413103603_NotRequiredPlayerTurnId.designer.cs">
+      <DependentUpon>20180413103603_NotRequiredPlayerTurnId.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\BattleShipContextModelSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -13,15 +13,24 @@ namespace BattleShip.TestConsole
         static void Main(string[] args)
         {
             //AddAccount();
-            Login();
+            //Login();
+            //GetAccount();
+            //AddGame();
+            //JoinGame();
+            //GameKeyExist();
+            //GetGame();
+            //GetOpenGames();
+            //GetAccountGames();
+            //Shoot();
+            RemoveOldGames();
         }
 
         private static void AddAccount()
         {
             try
             {
-                GameEngine.GameEngine.NewAccount("WrickedGamer", "Test123", "wrickedgamer@example.com");
-                GameEngine.GameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
+                GameEngine.GameEngine.NewAccount("WrickedGamer2", "Test123", "wrickedgamer@example.com");
+                GameEngine.GameEngine.NewAccount("Chibi2", "Test123", "chibi@example.com");
 
                 Console.WriteLine("Accounts added!");
             }
@@ -35,8 +44,8 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                /*Task<*/Account/*>*/ account = GameEngine.GameEngine.Login("WrickedGamer", "Test1234");
-                Console.WriteLine("Account " + account/*.Result*/.UserName + " now logged in!");
+                Account account = GameEngine.GameEngine.Login("WrickedGamer", "Test123");
+                Console.WriteLine("Account " + account.UserName + " now logged in!");
             }
             catch (Exception ex)
             {
@@ -44,163 +53,162 @@ namespace BattleShip.TestConsole
             }
         }
 
-        //private static void GetAccount()
-        //{
-        //    try
-        //    {
-        //        Task<Account> account = GameEngine.GameEngine.GetAccount(1);
+        private static void GetAccount()
+        {
+            try
+            {
+                Account account = GameEngine.GameEngine.GetAccount(10);
 
-        //        if(account != null)
-        //        {
-        //            Console.WriteLine(account.Name);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+                if (account != null)
+                {
+                    Console.WriteLine("Got account with username: " + account.UserName);
+                }
+                else
+                {
+                    Console.WriteLine("No user with that id!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //private static void AddGame()
-        //{
-        //    try
-        //    {
-        //        Task<string> gameKey = GameEngine.GameEngine.NewGame(1, true);
-        //        Console.WriteLine("New game added with gamekey: " + gameKey.Result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void AddGame()
+        {
+            try
+            {
+                string gameKey = GameEngine.GameEngine.NewGame(1, true);
+                Console.WriteLine("New game added with gamekey: " + gameKey);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //private static void AddGame()
-        //{
-        //    try
-        //    {
-        //        Task<string> gameKey = GameEngine.GameEngine.NewGame(1, true);
-        //        Console.WriteLine("New game added with gamekey: " + gameKey.Result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void JoinGame()
+        {
+            try
+            {
+                GameEngine.GameEngine.JoinGame("a239ce", 2);
+                Console.WriteLine("You have join game!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //private static void JoinGame()
-        //{
-        //    try
-        //    {
-        //        GameEngine.GameEngine.JoinGame("abc123", 2);
-        //        Console.WriteLine("You have join game!");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void GameKeyExist()
+        {
+            try
+            {
+                bool result = GameEngine.GameEngine.GameKeyExist("a239ce");
 
-        //private static void GameKeyExist()
-        //{
-        //    try
-        //    {
-        //        bool result = GameEngine.GameEngine.GameKeyExist("abc123");
+                if (result)
+                {
+                    Console.WriteLine("GameKey exist!");
+                }
+                else
+                {
+                    Console.WriteLine("GameKey doesn't exist!");
+                }
 
-        //        if (result)
-        //        {
-        //            Console.WriteLine("GameKey exist!");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine("GameKey doesn't exist!");
-        //        }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void GetGame()
+        {
+            try
+            {
+                GameBoard game = GameEngine.GameEngine.GetGame("a239ce");
+                if (game != null)
+                {
+                    Console.WriteLine(String.Format("Game {0} started by {1}", game.Key, game.Players.ElementAt(0).Account.UserName));
+                }
+                else
+                {
+                    Console.WriteLine("GameBoard with this key doesn't exist!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //private static void GetGame()
-        //{
-        //    try
-        //    {
-        //        Task<GameBoard> game = GameEngine.GameEngine.GetGame("abc123");
-        //        Console.WriteLine(String.Format("Game {0} started by {1}", game.Result.GameKey, game.Result.Players.ElementAt(1).Name);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void GetOpenGames()
+        {
+            try
+            {
+                List<GameBoard> games = GameEngine.GameEngine.GetOpenGames();
 
-        //private static void GetOpenGames()
-        //{
-        //    try
-        //    {
-        //        Task<List<GameBoard>> games = GameEngine.GameEngine.GetOpenGames();
+                Console.WriteLine("Existing open games:");
 
-        //        Console.WriteLine("Existing open games:");
+                foreach (GameBoard game in games)
+                {
+                    Console.WriteLine("\t" + game.Key + " started of " + game.Players.ElementAt(0).Account.UserName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //        foreach (GameBoard game in games.Result)
-        //        {
-        //            Console.WriteLine("\t" + game.GameKey);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void GetAccountGames()
+        {
+            try
+            {
+                List<GameBoard> games = GameEngine.GameEngine.GetAccountGames(1);
 
-        //private static void GetAccountGames()
-        //{
-        //    try
-        //    {
-        //        Task<List<GameBoard>> games = GameEngine.GameEngine.GetAccountGames(1);
+                Console.WriteLine("WrickedGamer's games:");
 
-        //        Console.WriteLine("Account games:");
+                foreach (GameBoard game in games)
+                {
+                    Console.WriteLine("\t" + game.Key);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //        foreach (GameBoard game in games.Result)
-        //        {
-        //            Console.WriteLine("\t" + game.GameKey);
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void Shoot()
+        {
+            try
+            {
+                //bool result = GameEngine.GameEngine.Shoot(25, "f9f0cb", 1, 1);
+                bool result = GameEngine.GameEngine.Shoot(27, "f9f0cb", 1, 1);
 
-        //private static void Shoot()
-        //{
-        //    try
-        //    {
-        //        bool result = GameEngine.GameEngine.Shoot(1, "ABC123", 1, 1);
+                Console.WriteLine("Shoot at position 1,1 on player 1 - Result:" + result.ToString());
 
-        //        Console.WriteLine("Shoot at position 1,1 on player 1 - Result:" + result.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+        private static void RemoveOldGames()
+        {
+            try
+            {
+                GameEngine.GameEngine.RemoveOldGameBoards();
 
-        //private static void RemoveOldGames()
-        //{
-        //    try
-        //    {
-        //        GameEngine.GameEngine.RemoveOldGameBoard();
+                Console.WriteLine("Removed old gameboards!");
 
-        //        Console.WriteLine("Removed old gameboards!");
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine(ex.Message);
-        //    }
-        //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace BattleShip.Domain
         public Player Player { get; set; }
 
         public int BoatTypeId { get; set; }
+        public int PlayerId { get; set; }
 
         public bool Sink
         {
