@@ -16,24 +16,46 @@ namespace BattleShip.Domain
         public DateTime LastUpdate { get; set; }
 
         /// <summary>
-        /// Properties to check if game is active - get
+        /// Properties to check if game is active (not full or ended) - get
         /// </summary>
         public bool Active
         {
             get
             {
-                return (Players.Count == 2);
+                return (Full && !Ended);
             }
         }
 
         /// <summary>
-        /// Properties for check if both player has seen end screen
+        /// Properties to return if game is full (two players) - get
+        /// </summary>
+        public bool Full
+        {
+            get
+            {
+                return (Players.Count >= 2);
+            }
+        }
+
+        /// <summary>
+        /// Properties to return if game is ended (one player's all boats are sink) - get
+        /// </summary>
+        public bool Ended
+        {
+            get
+            {
+                return Players.Any(p => p.Lost);
+            }
+        }
+
+        /// <summary>
+        /// Properties for check if both player have seen end screen - get
         /// </summary>
         public bool BothPlayerHasSeenEndScreen
         {
             get
             {
-                return ((Players.Count == 2) && Players.ElementAt(0).HaveSeenEndScreen && Players.ElementAt(1).HaveSeenEndScreen);
+                return (Full && Players[0].HaveSeenEndScreen && Players[1].HaveSeenEndScreen);
             }
         }
 

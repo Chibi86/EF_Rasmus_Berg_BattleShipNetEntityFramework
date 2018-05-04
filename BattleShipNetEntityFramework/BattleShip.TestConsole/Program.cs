@@ -15,22 +15,22 @@ namespace BattleShip.TestConsole
             //AddAccount();
             //Login();
             //GetAccount();
-            //AddGame();
+            AddGame();
             //JoinGame();
             //GameKeyExist();
             //GetGame();
             //GetOpenGames();
             //GetAccountGames();
             //Shoot();
-            RemoveOldGames();
+            //RemoveOldGames();
         }
 
         private static void AddAccount()
         {
             try
             {
-                GameEngine.GameEngine.NewAccount("WrickedGamer2", "Test123", "wrickedgamer@example.com");
-                GameEngine.GameEngine.NewAccount("Chibi2", "Test123", "chibi@example.com");
+                GameEngine.GameEngine.NewAccount("WrickedGamer", "Test123", "wrickedgamer@example.com");
+                GameEngine.GameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
 
                 Console.WriteLine("Accounts added!");
             }
@@ -57,7 +57,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Account account = GameEngine.GameEngine.GetAccount(10);
+                Account account = GameEngine.GameEngine.GetAccount(1);
 
                 if (account != null)
                 {
@@ -78,7 +78,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                string gameKey = GameEngine.GameEngine.NewGame(1, true);
+                string gameKey = GameEngine.GameEngine.NewGame(1, false);
                 Console.WriteLine("New game added with gamekey: " + gameKey);
             }
             catch (Exception ex)
@@ -91,7 +91,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                GameEngine.GameEngine.JoinGame("a239ce", 2);
+                GameEngine.GameEngine.JoinGame("1692c2", 2);
                 Console.WriteLine("You have join game!");
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                bool result = GameEngine.GameEngine.GameKeyExist("a239ce");
+                bool result = GameEngine.GameEngine.GameKeyExist("23ed4e");
 
                 if (result)
                 {
@@ -126,10 +126,10 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                GameBoard game = GameEngine.GameEngine.GetGame("a239ce");
+                GameBoard game = GameEngine.GameEngine.GetGame("23ed4e");
                 if (game != null)
                 {
-                    Console.WriteLine(String.Format("Game {0} started by {1}", game.Key, game.Players.ElementAt(0).Account.UserName));
+                    Console.WriteLine(String.Format("Game {0} started by {1}", game.Key, game.Players[0].Account.UserName));
                 }
                 else
                 {
@@ -152,7 +152,7 @@ namespace BattleShip.TestConsole
 
                 foreach (GameBoard game in games)
                 {
-                    Console.WriteLine("\t" + game.Key + " started of " + game.Players.ElementAt(0).Account.UserName);
+                    Console.WriteLine("\t" + game.Key + " started by " + game.Players[0].Account.UserName);
                 }
             }
             catch (Exception ex)
@@ -171,7 +171,9 @@ namespace BattleShip.TestConsole
 
                 foreach (GameBoard game in games)
                 {
-                    Console.WriteLine("\t" + game.Key);
+                    string activeText = (game.Active) ? "Active" : (game.Ended) ? "Game ended" : "Waiting for player";
+
+                    Console.WriteLine(String.Format("\t{0} - {1}", game.Key, activeText));
                 }
             }
             catch (Exception ex)
@@ -184,10 +186,13 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                //bool result = GameEngine.GameEngine.Shoot(25, "f9f0cb", 1, 1);
-                bool result = GameEngine.GameEngine.Shoot(27, "f9f0cb", 1, 1);
+                bool result = GameEngine.GameEngine.Shoot(23, "23ed4e", 1, 1);
 
                 Console.WriteLine("Shoot at position 1,1 on player 1 - Result:" + result.ToString());
+
+                //bool result = GameEngine.GameEngine.Shoot(2, "23ed4e", 1, 1);
+
+                //Console.WriteLine("Shoot at position 1,1 on player 2 - Result:" + result.ToString());
 
             }
             catch (Exception ex)

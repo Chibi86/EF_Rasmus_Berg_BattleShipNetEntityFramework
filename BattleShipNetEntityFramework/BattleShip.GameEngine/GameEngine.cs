@@ -116,14 +116,10 @@ namespace BattleShip.GameEngine
         /// <param name="accountId">Account id from session</param>
         public static void JoinGame(string gameBoardKey, int accountId)
         {
-            GameBoard game = (
-                from g in _context.GameBoards
-                join p in _context.Players
-                on g.Key equals p.GameBoardKey
-                where g.Key == gameBoardKey
-                select g
-             )
-             .FirstOrDefault();
+            GameBoard game = _context.GameBoards
+                .Include(g => g.Players)
+                .Where(g => g.Key == gameBoardKey)
+                .FirstOrDefault();
 
             if (game == null)
             {
@@ -152,9 +148,10 @@ namespace BattleShip.GameEngine
         /// <returns>Validation result</returns>
         public static bool GameKeyExist(string gameKey)
         {
-            string gameKeyResult = (from g in _context.GameBoards
-                                    where g.Key == gameKey
-                                    select g.Key).FirstOrDefault();
+            string gameKeyResult = _context.GameBoards
+                                    .Where(g => g.Key == gameKey)
+                                    .Select(g => g.Key)
+                                    .FirstOrDefault();
 
             return (!string.IsNullOrEmpty(gameKeyResult));
         }
@@ -163,14 +160,33 @@ namespace BattleShip.GameEngine
         /// Get a gameboard with game key
         /// </summary>
         /// <param name="gameKey">Game key</param>
-        /// <returns>Task with GameBoard</returns>
+        /// <returns>GameBoard</returns>
         public static GameBoard GetGame(string gameKey)
         {
             GameBoard game = _context.GameBoards
+                                // Players + Account
                                 .Include(g => g.Players)
                                 .ThenInclude(p => p.Account)
+                                // PlayerHits + Position
+                                .Include(g => g.Players)
+                                .ThenInclude(p => p.AlreadyHitPositions)
+                                .ThenInclude(ph => ph.Position)
+                                // Boats + BoatTypes
+                                .Include(g => g.Players)
+                                .ThenInclude(p => p.Boats)
+                                .ThenInclude(b => b.Type)
+                                // BoatHits + Positions
+                                .Include(g => g.Players)
+                                .ThenInclude(p => p.Boats)
+                                .ThenInclude(b => b.Hits)
+                                .ThenInclude(bh => bh.Position)
+                                // BoatPositions + Positions
+                                .Include(g => g.Players)
+                                .ThenInclude(p => p.Boats)
+                                .ThenInclude(b => b.Positions)
+                                .ThenInclude(bp => bp.Position)
                                 .Where(g => g.Key == gameKey)
-                          .FirstOrDefault();
+                                .FirstOrDefault();
 
             return game;
         }
@@ -178,7 +194,7 @@ namespace BattleShip.GameEngine
         /// <summary>
         /// Get a list of all open gamebords
         /// </summary>
-        /// <returns>Task with all open gameboards</returns>
+        /// <returns>All open gameboards</returns>
         public static List<GameBoard> GetOpenGames()
         {
             List<GameBoard> openGames = _context.GameBoards
@@ -194,16 +210,23 @@ namespace BattleShip.GameEngine
         /// Get a list of all gameboards a account plays on
         /// </summary>
         /// <param name="accountId">Account id</param>
-        /// <returns>Task with List of GameBoards</returns>
+        /// <returns>List of GameBoards</returns>
         public static List<GameBoard> GetAccountGames(int accountId)
         {
-            Account account = _context.Accounts
-                                .Include(a => a.Players)
-                                .ThenInclude(p => p.GameBoard)
-                                .Where(a => a.Id == accountId)
-                                .FirstOrDefault();
-
-            return account.GameBoards;
+            return _context.GameBoards
+                    // Players + Accounts
+                    .Include(g => g.Players)
+                    .ThenInclude(p => p.Account)
+                    // Boats + BoatHits
+                    .Include(g => g.Players)
+                    .ThenInclude(p => p.Boats)
+                    .ThenInclude(b => b.Hits)
+                    // BoatTypes
+                    .Include(g => g.Players)
+                    .ThenInclude(p => p.Boats)
+                    .ThenInclude(b => b.Type)
+                    .Where(g => g.Players.Any(p => p.Account.Id == accountId))
+                    .ToList();
         }
 
         /// <summary>
@@ -213,14 +236,16 @@ namespace BattleShip.GameEngine
         /// <param name="accountId">Account id from session</param>
         private static void NewPlayer(string gameBoardKey, int accountId, out Player player)
         {
-            int countPlayers = (from p in _context.Players where p.GameBoardKey == gameBoardKey select p.Id).Count();
+            int countPlayers = _context.Players
+                                .Where(p => p.GameBoardKey == gameBoardKey)
+                                .Count();
 
             if (countPlayers >= 2)
             {
                 throw new Exception("Only two players on a GameBoard is allowed!");
             }
 
-            List<BoatType> boatTypes = (from bt in _context.BoatTypes select bt).ToList();
+            List<BoatType> boatTypes = _context.BoatTypes.ToList();
 
             player = new Player
             {
@@ -285,7 +310,7 @@ namespace BattleShip.GameEngine
                 // If none of the proposed squares are occupied, place the Boat
                 // Do this for all Boats
 
-                while (boat.Positions == null)
+                while (!boat.Positions.Any())
                 {
                     int startX = rand.Next(0, 10);
                     int startY = rand.Next(0, 10);
@@ -338,6 +363,9 @@ namespace BattleShip.GameEngine
                     PositionId = position.Id
                 };
 
+                _context.BoatPositions.Add(boatPosition);
+                _context.SaveChanges();
+
                 boat.Positions.Add(boatPosition);
             }
 
@@ -354,11 +382,11 @@ namespace BattleShip.GameEngine
         public static bool Shoot(int playerId, string gameBoardKey, int x, int y)
         {
             GameBoard game = _context.GameBoards
-                                            .Include(g => g.Players)
-                                            .ThenInclude(p => p.AlreadyHitPositions)
-                                            .ThenInclude(ph => ph.Position)
-                                            .Where(g => g.Key == gameBoardKey)
-                                            .FirstOrDefault();
+                                .Include(g => g.Players)
+                                .ThenInclude(p => p.AlreadyHitPositions)
+                                .ThenInclude(ph => ph.Position)
+                                .Where(g => g.Key == gameBoardKey)
+                                .FirstOrDefault();
 
             if (game == null)
             {
@@ -429,7 +457,6 @@ namespace BattleShip.GameEngine
             }
 
             _context.Update(game);
-
             _context.SaveChanges();
 
             return result;
@@ -446,14 +473,13 @@ namespace BattleShip.GameEngine
         /// <returns>Result</returns>
         public static bool IsAnyBoatHere(int playerId, int startX, int endX, int startY, int endY)
         {
-            List<BoatPosition> boatPositions = (from bp in _context.BoatPositions
-                                                join p in _context.Positions
-                                                on bp.PositionId equals p.Id
-                                                where p.X >= startX && p.X <= endX && p.Y >= startY && p.Y <= endY
-                                                select bp)
-                                                .ToList();
+            BoatPosition boatPosition = _context.BoatPositions
+                                            .Include(bp => bp.Position)
+                                            .Include(bp => bp.Boat)
+                                            .Where(bp => bp.Position.X >= startX && bp.Position.X <= endX && bp.Position.Y >= startY && bp.Position.Y <= endY)
+                                            .FirstOrDefault();
 
-            return (boatPositions.Count > 0);
+            return (boatPosition != null);
         }
 
         /// <summary>
@@ -465,24 +491,14 @@ namespace BattleShip.GameEngine
         /// <returns></returns>
         public static bool IsAnyBoatHere(int playerId, Position position, out Boat boat)
         {
-            List<BoatPosition> boatPositions = (from bp in _context.BoatPositions
-                                                join p in _context.Positions
-                                                on bp.PositionId equals p.Id
-                                                join b in _context.Boats
-                                                on bp.BoatId equals b.Id
-                                                where p.X == position.X && p.Y == position.Y
-                                                select bp)
-                                                .ToList();
-            if (boatPositions.Count > 0)
-            {
-                boat = boatPositions[0].Boat;
-                return true;
-            }
-            else
-            {
-                boat = new Boat();
-                return false;
-            }
+            boat = _context.BoatPositions
+                    .Include(bp => bp.Position)
+                    .Include(bp => bp.Boat)
+                    .Where(bp => bp.Position.X == position.X && bp.Position.Y == position.Y)
+                    .Select(bp => bp.Boat)
+                    .FirstOrDefault();
+
+            return (boat != null);
         }
 
         public static Position GetPositionOnXAndY(int x, int y)
@@ -501,11 +517,42 @@ namespace BattleShip.GameEngine
         public static void RemoveOldGameBoards()
         {
             List<GameBoard> games = _context.GameBoards
+                                        // Players + PlayerHits
                                         .Include(g => g.Players)
+                                        .ThenInclude(p => p.AlreadyHitPositions)
+                                        // Boats + BoatHits
+                                        .Include(g => g.Players)
+                                        .ThenInclude(p => p.Boats)
+                                        .ThenInclude(b => b.Hits)
+                                        // BoatPositions
+                                        .Include(g => g.Players)
+                                        .ThenInclude(p => p.Boats)
+                                        .ThenInclude(b => b.Positions)
                                         .Where(g => g.LastUpdate < DateTime.Now.AddMonths(-1))
                                         .ToList();
 
             List<GameBoard> finishGames = games.FindAll(g => g.BothPlayerHasSeenEndScreen);
+
+            foreach(GameBoard game in finishGames)
+            {
+                game.TurnPlayerId = null;
+
+                foreach (Player player in game.Players)
+                {
+                    _context.PlayerHits.RemoveRange(player.AlreadyHitPositions);
+
+                    foreach (Boat boat in player.Boats)
+                    {
+                        _context.BoatHits.RemoveRange(boat.Hits);
+                        _context.BoatPositions.RemoveRange(boat.Positions);
+                    }
+
+                    _context.Boats.RemoveRange(player.Boats);
+                }
+                _context.Players.RemoveRange(game.Players);
+            }
+
+            _context.SaveChanges();
 
             _context.GameBoards.RemoveRange(finishGames);
             _context.SaveChanges();
