@@ -39,7 +39,9 @@ namespace BattleShip.GameEngine
         /// <returns>Task with Account</returns>
         public static async Task<Account> GetAccount(int accountId)
         {
-            return await (from a in _context.Accounts where a.Id == accountId select a).FirstOrDefaultAsync();
+            return await _context.Accounts
+                            .Where(a=> a.Id == accountId)
+                            .FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -50,7 +52,9 @@ namespace BattleShip.GameEngine
         /// <returns>Task with Account</returns>
         public static async Task<Account> Login(string userName, string password)
         {
-            Account account = await (from a in _context.Accounts where a.UserName == userName select a).FirstOrDefaultAsync();
+            Account account = await _context.Accounts
+                                        .Where(a => a.UserName == userName)
+                                        .FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -70,7 +74,7 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id from session</param>
         /// <param name="privateGame">If game is private (need invite to join)</param>
-        /// <returns>Gamebord's GameKey</returns>
+        /// <returns>Task with gamebord's GameKey</returns>
         public static async Task<string> NewGame(int accountId, bool privateGame = false)
         {
             string gameKey;
@@ -145,7 +149,7 @@ namespace BattleShip.GameEngine
         /// Check if GameBoard exist
         /// </summary>
         /// <param name="GameKey">Game key (string)</param>
-        /// <returns>Validation result</returns>
+        /// <returns>Task with validation result</returns>
         public static async Task<bool> GameKeyExist(string gameKey)
         {
             string gameKeyResult = await _context.GameBoards
@@ -160,7 +164,7 @@ namespace BattleShip.GameEngine
         /// Get a gameboard with game key
         /// </summary>
         /// <param name="gameKey">Game key</param>
-        /// <returns>GameBoard</returns>
+        /// <returns>Task with GameBoard</returns>
         public static async Task<GameBoard> GetGame(string gameKey)
         {
             return await _context.GameBoards
@@ -192,7 +196,7 @@ namespace BattleShip.GameEngine
         /// <summary>
         /// Get a list of all open gamebords
         /// </summary>
-        /// <returns>All open gameboards</returns>
+        /// <returns>Task with all open gameboards</returns>
         public static async Task<List<GameBoard>> GetOpenGames()
         {
             List<GameBoard> openGames = await _context.GameBoards
@@ -208,7 +212,7 @@ namespace BattleShip.GameEngine
         /// Get a list of all gameboards a account plays on
         /// </summary>
         /// <param name="accountId">Account id</param>
-        /// <returns>List of GameBoards</returns>
+        /// <returns>Task with list of GameBoards</returns>
         public static async Task<List<GameBoard>> GetAccountGames(int accountId)
         {
             return await _context.GameBoards

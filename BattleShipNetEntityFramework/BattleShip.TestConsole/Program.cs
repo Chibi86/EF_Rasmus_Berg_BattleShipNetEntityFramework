@@ -22,7 +22,7 @@ namespace BattleShip.TestConsole
             //GetOpenGames();
             //GetAccountGames();
             //Shoot();
-            RemoveOldGames();
+            //RemoveOldGames();
         }
 
         private static void AddAccount()
