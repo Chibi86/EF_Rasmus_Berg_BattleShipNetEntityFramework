@@ -19,7 +19,7 @@ namespace BattleShip.GameEngine
         /// <param name="userName">UserName</param>
         /// <param name="password">Password</param>
         /// <param name="email">Email</param>
-        public static void NewAccount(string userName, string password, string email)
+        public static async void NewAccount(string userName, string password, string email)
         {
             Account account = new Account
             {
@@ -28,7 +28,7 @@ namespace BattleShip.GameEngine
                 Email = email
             };
 
-            _context.Accounts.AddAsync(account);
+            await _context.Accounts.AddAsync(account);
             _context.SaveChanges();
         }
 
@@ -37,9 +37,9 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id</param>
         /// <returns>Task with Account</returns>
-        public static Account GetAccount(int accountId)
+        public static async Task<Account> GetAccount(int accountId)
         {
-            return (from a in _context.Accounts where a.Id == accountId select a).FirstOrDefault();
+            return await (from a in _context.Accounts where a.Id == accountId select a).FirstOrDefaultAsync();
         }
 
         /// <summary>
@@ -48,9 +48,9 @@ namespace BattleShip.GameEngine
         /// <param name="userName">UserName</param>
         /// <param name="password">Password</param>
         /// <returns>Task with Account</returns>
-        public static  Account Login(string userName, string password)
+        public static async Task<Account> Login(string userName, string password)
         {
-            Account account = (from a in _context.Accounts where a.UserName == userName select a).FirstOrDefault();
+            Account account = await (from a in _context.Accounts where a.UserName == userName select a).FirstOrDefaultAsync();
 
             if (account == null)
             {
@@ -70,15 +70,15 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id from session</param>
         /// <param name="privateGame">If game is private (need invite to join)</param>
-        /// <returns>Task with gamebord's GameKey</returns>
-        public static string NewGame(int accountId, bool privateGame = false)
+        /// <returns>Gamebord's GameKey</returns>
+        public static async Task<string> NewGame(int accountId, bool privateGame = false)
         {
             string gameKey;
 
             do
             {
                 gameKey = GenerateGameKey();
-            } while (GameKeyExist(gameKey));
+            } while (GameKeyExist(gameKey).Result);
 
             GameBoard gameBoard = new GameBoard
             {
@@ -86,7 +86,7 @@ namespace BattleShip.GameEngine
                 Private = privateGame
             };
 
-            _context.GameBoards.Add(gameBoard);
+            await _context.GameBoards.AddAsync(gameBoard);
             _context.SaveChanges();
 
             Player player;
@@ -146,12 +146,12 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="GameKey">Game key (string)</param>
         /// <returns>Validation result</returns>
-        public static bool GameKeyExist(string gameKey)
+        public static async Task<bool> GameKeyExist(string gameKey)
         {
-            string gameKeyResult = _context.GameBoards
+            string gameKeyResult = await _context.GameBoards
                                     .Where(g => g.Key == gameKey)
                                     .Select(g => g.Key)
-                                    .FirstOrDefault();
+                                    .FirstOrDefaultAsync();
 
             return (!string.IsNullOrEmpty(gameKeyResult));
         }
@@ -161,47 +161,45 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="gameKey">Game key</param>
         /// <returns>GameBoard</returns>
-        public static GameBoard GetGame(string gameKey)
+        public static async Task<GameBoard> GetGame(string gameKey)
         {
-            GameBoard game = _context.GameBoards
-                                // Players + Account
-                                .Include(g => g.Players)
-                                .ThenInclude(p => p.Account)
-                                // PlayerHits + Position
-                                .Include(g => g.Players)
-                                .ThenInclude(p => p.AlreadyHitPositions)
-                                .ThenInclude(ph => ph.Position)
-                                // Boats + BoatTypes
-                                .Include(g => g.Players)
-                                .ThenInclude(p => p.Boats)
-                                .ThenInclude(b => b.Type)
-                                // BoatHits + Positions
-                                .Include(g => g.Players)
-                                .ThenInclude(p => p.Boats)
-                                .ThenInclude(b => b.Hits)
-                                .ThenInclude(bh => bh.Position)
-                                // BoatPositions + Positions
-                                .Include(g => g.Players)
-                                .ThenInclude(p => p.Boats)
-                                .ThenInclude(b => b.Positions)
-                                .ThenInclude(bp => bp.Position)
-                                .Where(g => g.Key == gameKey)
-                                .FirstOrDefault();
-
-            return game;
+            return await _context.GameBoards
+                            // Players + Account
+                            .Include(g => g.Players)
+                            .ThenInclude(p => p.Account)
+                            // PlayerHits + Position
+                            .Include(g => g.Players)
+                            .ThenInclude(p => p.AlreadyHitPositions)
+                            .ThenInclude(ph => ph.Position)
+                            // Boats + BoatTypes
+                            .Include(g => g.Players)
+                            .ThenInclude(p => p.Boats)
+                            .ThenInclude(b => b.Type)
+                            // BoatHits + Positions
+                            .Include(g => g.Players)
+                            .ThenInclude(p => p.Boats)
+                            .ThenInclude(b => b.Hits)
+                            .ThenInclude(bh => bh.Position)
+                            // BoatPositions + Positions
+                            .Include(g => g.Players)
+                            .ThenInclude(p => p.Boats)
+                            .ThenInclude(b => b.Positions)
+                            .ThenInclude(bp => bp.Position)
+                            .Where(g => g.Key == gameKey)
+                            .FirstOrDefaultAsync();
         }
 
         /// <summary>
         /// Get a list of all open gamebords
         /// </summary>
         /// <returns>All open gameboards</returns>
-        public static List<GameBoard> GetOpenGames()
+        public static async Task<List<GameBoard>> GetOpenGames()
         {
-            List<GameBoard> openGames = _context.GameBoards
+            List<GameBoard> openGames = await _context.GameBoards
                                             .Include(g => g.Players)
                                             .ThenInclude(p => p.Account)
                                             .Where(g => g.Private == false)
-                                            .ToList();
+                                            .ToListAsync();
 
             return openGames.FindAll(og => og.Players.Count == 1);
         }
@@ -211,9 +209,9 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id</param>
         /// <returns>List of GameBoards</returns>
-        public static List<GameBoard> GetAccountGames(int accountId)
+        public static async Task<List<GameBoard>> GetAccountGames(int accountId)
         {
-            return _context.GameBoards
+            return await _context.GameBoards
                     // Players + Accounts
                     .Include(g => g.Players)
                     .ThenInclude(p => p.Account)
@@ -226,7 +224,7 @@ namespace BattleShip.GameEngine
                     .ThenInclude(p => p.Boats)
                     .ThenInclude(b => b.Type)
                     .Where(g => g.Players.Any(p => p.Account.Id == accountId))
-                    .ToList();
+                    .ToListAsync();
         }
 
         /// <summary>
@@ -376,10 +374,11 @@ namespace BattleShip.GameEngine
         /// <summary>
         /// Shoot on a square in one a Player's board 
         /// </summary>
-        /// <param name="playerId">Id for target player (int)</param>
+        /// <param name="targetPlayerId">Id for target player (int)</param>
+        /// <param name="shooterPlayerId">Id for shooter player (int)</param>
         /// <param name="position">Position to hit (Position)</param>
         /// <returns>Hit result (bool)</returns>
-        public static bool Shoot(int playerId, string gameBoardKey, int x, int y)
+        public static bool Shoot(int targetPlayerId, int shooterPlayerId, string gameBoardKey, int x, int y)
         {
             GameBoard game = _context.GameBoards
                                 .Include(g => g.Players)
@@ -393,7 +392,12 @@ namespace BattleShip.GameEngine
                 throw new Exception("Game doesn't exist!");
             }
 
-            if (playerId == game.TurnPlayerId)
+            if (!game.Players.Any(p => p.Id == shooterPlayerId))
+            {
+                throw new Exception("You are not allowed to play on this board!");
+            }
+
+            if (shooterPlayerId != game.TurnPlayerId)
             {
                 throw new Exception("Not your turn!");
             }
@@ -402,12 +406,12 @@ namespace BattleShip.GameEngine
             Player playerAttacker;
 
             // Check which player is victim and which is attacker
-            if (playerId == game.Players.ElementAt(0).Id)
+            if (targetPlayerId == game.Players.ElementAt(0).Id)
             {
                 playerVictim = game.Players.ElementAt(0);
                 playerAttacker = game.Players.ElementAt(1);
             }
-            else if (playerId == game.Players.ElementAt(1).Id)
+            else if (targetPlayerId == game.Players.ElementAt(1).Id)
             {
                 playerVictim = game.Players.ElementAt(1);
                 playerAttacker = game.Players.ElementAt(0);
@@ -439,7 +443,7 @@ namespace BattleShip.GameEngine
 
             Boat boat;
 
-            bool result = IsAnyBoatHere(playerId, position, out boat);
+            bool result = IsAnyBoatHere(targetPlayerId, position, out boat);
 
             if (result)
             {
