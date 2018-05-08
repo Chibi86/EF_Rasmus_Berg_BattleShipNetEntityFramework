@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace BattleShip.GameEngine
+namespace BattleShip.SharedLibraries
 {
     /// <summary>
     /// Based on code from csharptest.net and Christian Gollhardt at https://stackoverflow.com/questions/4181198/how-to-hash-a-password/10402129

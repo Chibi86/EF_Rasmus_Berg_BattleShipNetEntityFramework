@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BattleShip.Domain;
+using BattleShip.Engines;
 
 namespace BattleShip.TestConsole
 {
@@ -13,8 +14,11 @@ namespace BattleShip.TestConsole
         static void Main(string[] args)
         {
             //AddAccount();
-            //Login();
+            Login();
             //GetAccount();
+            //SendRecoveryAccount();
+            //RecoveryAccount();
+            //SaveAccountRecovery();
             //AddGame();
             //JoinGame();
             //GameKeyExist();
@@ -29,8 +33,8 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                GameEngine.GameEngine.NewAccount("WrickedGamer", "Test123", "wrickedgamer@example.com");
-                GameEngine.GameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
+                GameEngine.NewAccount("WrickedGamer2", "Test123", "wrickedgamer2@example.com");
+                //GameEngine.NewAccount("Chibi", "Test123", "chibi@example.com");
 
                 Console.WriteLine("Accounts added!");
             }
@@ -44,10 +48,50 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<Account> account = GameEngine.GameEngine.Login("WrickedGamer", "Test123");
-                Console.WriteLine("Account " + account.Result.UserName + " now logged in!");
+                Account account = GameEngine.Login("Chibi", "Test1234");
+                Console.WriteLine("Account " + account.UserName + " now logged in!");
             }
             catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static void SendRecoveryAccount()
+        {
+            try
+            {
+                GameEngine.SendAccountRecovery("Chibi", "http://example.com/accountrecovery");
+                Console.WriteLine("Email for recovery account is send!");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static void RecoveryAccount()
+        {
+            try
+            {
+                AccountRecovery recovery = GameEngine.AccountRecovery(9, "6777e4534f");
+
+                Console.WriteLine("You are about to change password for account with username: " + recovery.Account.UserName + ", recovery is valid until " + recovery.ExpireDate.ToString("yyyy-MM-dd hh:mm"));
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static void SaveAccountRecovery()
+        {
+            try
+            {
+                GameEngine.SaveAccountRecovery(2, "9ea1581adf", "Test1234");
+                Console.WriteLine("Password is change!");
+            }
+            catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -57,11 +101,11 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<Account> account = GameEngine.GameEngine.GetAccount(1);
+                Account account = GameEngine.GetAccount(1);
 
-                if (account.Result != null)
+                if (account != null)
                 {
-                    Console.WriteLine("Got account with username: " + account.Result.UserName);
+                    Console.WriteLine("Got account with username: " + account.UserName);
                 }
                 else
                 {
@@ -78,8 +122,8 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<string> gameKey = GameEngine.GameEngine.NewGame(1, false);
-                Console.WriteLine("New game added with gamekey: " + gameKey.Result);
+                string gameKey = GameEngine.NewGame(1, false);
+                Console.WriteLine("New game added with gamekey: " + gameKey);
             }
             catch (Exception ex)
             {
@@ -91,7 +135,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                GameEngine.GameEngine.JoinGame("e86bf8", 2);
+                GameEngine.JoinGame("e86bf8", 2);
                 Console.WriteLine("You have join game!");
             }
             catch (Exception ex)
@@ -104,9 +148,9 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<bool> keyExist = GameEngine.GameEngine.GameKeyExist("a11ab8");
+                bool keyExist = GameEngine.GameKeyExist("a11ab8");
 
-                if (keyExist.Result)
+                if (keyExist)
                 {
                     Console.WriteLine("GameKey exist!");
                 }
@@ -126,10 +170,10 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<GameBoard> game = GameEngine.GameEngine.GetGame("a11ab8");
-                if (game.Result != null)
+                GameBoard game = GameEngine.GetGame("a53d7b");
+                if (game != null)
                 {
-                    Console.WriteLine(String.Format("Game {0} started by {1}", game.Result.Key, game.Result.Players[0].Account.UserName));
+                    Console.WriteLine(String.Format("Game {0} started by {1}", game.Key, game.Players[0].Account.UserName));
                 }
                 else
                 {
@@ -146,11 +190,11 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<List<GameBoard>> games = GameEngine.GameEngine.GetOpenGames();
+                List<GameBoard> games = GameEngine.GetOpenGames();
 
                 Console.WriteLine("Existing open games:");
 
-                foreach (GameBoard game in games.Result)
+                foreach (GameBoard game in games)
                 {
                     Console.WriteLine("\t" + game.Key + " started by " + game.Players[0].Account.UserName);
                 }
@@ -165,11 +209,11 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                Task<List<GameBoard>> games = GameEngine.GameEngine.GetAccountGames(1);
+                List<GameBoard> games = GameEngine.GetAccountGames(1);
 
                 Console.WriteLine("WrickedGamer's games:");
 
-                foreach (GameBoard game in games.Result)
+                foreach (GameBoard game in games)
                 {
                     string activeText = (game.Active) ? "Active" : (game.Ended) ? "Game ended" : "Waiting for player";
 
@@ -186,11 +230,11 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                bool result = GameEngine.GameEngine.Shoot(14, 15, "a11ab8", 5, 5);
+                bool result = GameEngine.Shoot(14, 15, "a11ab8", 5, 5);
 
                 Console.WriteLine("Shoot at position 5,5 on player 1 - Result:" + result.ToString());
 
-                //bool result = GameEngine.GameEngine.Shoot(15, "a11ab8", 1, 1);
+                //bool result = GameEngine.Shoot(15, "a11ab8", 1, 1);
 
                 //Console.WriteLine("Shoot at position 1,1 on player 2 - Result:" + result.ToString());
 
@@ -205,7 +249,7 @@ namespace BattleShip.TestConsole
         {
             try
             {
-                GameEngine.GameEngine.RemoveOldGameBoards();
+                GameEngine.RemoveOldGameBoards();
 
                 Console.WriteLine("Removed old gameboards!");
 

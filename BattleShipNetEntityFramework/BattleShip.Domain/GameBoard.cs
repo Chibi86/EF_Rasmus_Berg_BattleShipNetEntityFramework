@@ -9,11 +9,10 @@ namespace BattleShip.Domain
         public string Key { get; set; }
         public bool Private { get; set; }
         public int? TurnPlayerId { get; set; }
+        public DateTime LastUpdate { get; set; }
 
         public List<Player> Players { get; set; }
         public Player TurnPlayer { get; set; }
-
-        public DateTime LastUpdate { get; set; }
 
         /// <summary>
         /// Properties to check if game is active (not full or ended) - get
@@ -63,6 +62,22 @@ namespace BattleShip.Domain
         {
             Players = new List<Player>();
             LastUpdate = DateTime.Now;
+        }
+
+        /// <summary>
+        /// Deep copy Game object
+        /// </summary>
+        /// <returns>Deep copy</returns>
+        public GameBoard DeepCopy()
+        {
+            GameBoard newGame = (GameBoard)this.MemberwiseClone();
+
+            if (newGame.Players.Any() && newGame.Players[0].Account != null)
+            {
+                newGame.Players.ForEach(p => p.Account.Password = null);
+            }
+
+            return newGame;
         }
     }
 }

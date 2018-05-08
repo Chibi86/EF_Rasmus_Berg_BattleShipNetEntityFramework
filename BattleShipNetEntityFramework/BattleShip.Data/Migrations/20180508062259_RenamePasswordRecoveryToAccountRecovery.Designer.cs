@@ -11,9 +11,10 @@ using System;
 namespace BattleShip.Data.Migrations
 {
     [DbContext(typeof(BattleShipContext))]
-    partial class BattleShipContextModelSnapshot : ModelSnapshot
+    [Migration("20180508062259_RenamePasswordRecoveryToAccountRecovery")]
+    partial class RenamePasswordRecoveryToAccountRecovery
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,29 +31,11 @@ namespace BattleShip.Data.Migrations
                     b.Property<string>("Password")
                         .IsRequired();
 
-                    b.Property<int>("RankId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
-
                     b.Property<string>("UserName");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RankId");
-
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.AccountRank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccountRanks");
                 });
 
             modelBuilder.Entity("BattleShip.Domain.AccountRecovery", b =>
@@ -197,14 +180,6 @@ namespace BattleShip.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Positions");
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.Account", b =>
-                {
-                    b.HasOne("BattleShip.Domain.AccountRank", "Rank")
-                        .WithMany()
-                        .HasForeignKey("RankId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.AccountRecovery", b =>

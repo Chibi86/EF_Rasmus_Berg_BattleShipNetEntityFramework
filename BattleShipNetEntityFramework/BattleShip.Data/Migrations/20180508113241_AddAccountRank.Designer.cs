@@ -11,9 +11,10 @@ using System;
 namespace BattleShip.Data.Migrations
 {
     [DbContext(typeof(BattleShipContext))]
-    partial class BattleShipContextModelSnapshot : ModelSnapshot
+    [Migration("20180508113241_AddAccountRank")]
+    partial class AddAccountRank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,8 +38,6 @@ namespace BattleShip.Data.Migrations
                     b.Property<string>("UserName");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RankId");
 
                     b.ToTable("Accounts");
                 });
@@ -197,14 +196,6 @@ namespace BattleShip.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Positions");
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.Account", b =>
-                {
-                    b.HasOne("BattleShip.Domain.AccountRank", "Rank")
-                        .WithMany()
-                        .HasForeignKey("RankId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.AccountRecovery", b =>

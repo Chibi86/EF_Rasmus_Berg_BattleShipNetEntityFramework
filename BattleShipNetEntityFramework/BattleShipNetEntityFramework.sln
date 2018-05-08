@@ -7,9 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.Data", "BattleSh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.Domain", "BattleShip.Domain\BattleShip.Domain.csproj", "{35CA1591-0C24-4839-93E0-C7DF45593ED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.GameEngine", "BattleShip.GameEngine\BattleShip.GameEngine.csproj", "{146F2A61-AEED-43FC-B797-CAC1BD92D8B1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.Engines", "BattleShip.GameEngine\BattleShip.Engines.csproj", "{146F2A61-AEED-43FC-B797-CAC1BD92D8B1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.TestConsole", "BattleShip.TestConsole\BattleShip.TestConsole.csproj", "{01D9B186-3549-4881-8BA7-08A6712EC735}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.GameTest", "BattleShip.TestGame\BattleShip.GameTest.csproj", "{9AF1E96D-32C7-4F3A-8119-F49FBF5FB3D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BattleShip.SharedLibraries", "BattleShip.SharedLibrary\BattleShip.SharedLibraries.csproj", "{082C9E3F-8973-486F-AB30-19B79F5F3071}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{01D9B186-3549-4881-8BA7-08A6712EC735}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01D9B186-3549-4881-8BA7-08A6712EC735}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01D9B186-3549-4881-8BA7-08A6712EC735}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AF1E96D-32C7-4F3A-8119-F49FBF5FB3D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AF1E96D-32C7-4F3A-8119-F49FBF5FB3D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AF1E96D-32C7-4F3A-8119-F49FBF5FB3D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AF1E96D-32C7-4F3A-8119-F49FBF5FB3D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{082C9E3F-8973-486F-AB30-19B79F5F3071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{082C9E3F-8973-486F-AB30-19B79F5F3071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{082C9E3F-8973-486F-AB30-19B79F5F3071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{082C9E3F-8973-486F-AB30-19B79F5F3071}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

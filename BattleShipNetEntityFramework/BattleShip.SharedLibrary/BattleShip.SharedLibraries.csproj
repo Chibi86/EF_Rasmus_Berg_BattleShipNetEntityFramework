@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{35CA1591-0C24-4839-93E0-C7DF45593ED9}</ProjectGuid>
+    <ProjectGuid>{082C9E3F-8973-486F-AB30-19B79F5F3071}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BattleShip.Domain</RootNamespace>
-    <AssemblyName>BattleShip.Domain</AssemblyName>
+    <RootNamespace>BattleShip.SharedLibrary</RootNamespace>
+    <AssemblyName>BattleShip.SharedLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,24 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Account.cs" />
-    <Compile Include="Boat.cs" />
-    <Compile Include="BoatType.cs" />
-    <Compile Include="GameBoard.cs" />
-    <Compile Include="AccountRecovery.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Position.cs" />
+    <Compile Include="BattleShipLibrary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AccountRank.cs" />
-    <Compile Include="Relations objects\BoatHit.cs" />
-    <Compile Include="Relations objects\BoatPosition.cs" />
-    <Compile Include="Relations objects\PlayerHit.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\BattleShip.SharedLibrary\BattleShip.SharedLibraries.csproj">
-      <Project>{082c9e3f-8973-486f-ab30-19b79f5f3071}</Project>
-      <Name>BattleShip.SharedLibraries</Name>
-    </ProjectReference>
+    <Compile Include="SecurePasswordHasher.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

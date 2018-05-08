@@ -11,9 +11,10 @@ using System;
 namespace BattleShip.Data.Migrations
 {
     [DbContext(typeof(BattleShipContext))]
-    partial class BattleShipContextModelSnapshot : ModelSnapshot
+    [Migration("20180507085448_AddPasswordReminder")]
+    partial class AddPasswordReminder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,50 +28,13 @@ namespace BattleShip.Data.Migrations
 
                     b.Property<string>("Email");
 
-                    b.Property<string>("Password")
-                        .IsRequired();
-
-                    b.Property<int>("RankId")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValue(1);
+                    b.Property<string>("Password");
 
                     b.Property<string>("UserName");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RankId");
-
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.AccountRank", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccountRanks");
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.AccountRecovery", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccountId");
-
-                    b.Property<string>("Key");
-
-                    b.Property<DateTime>("SendDate");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("AccountRecoveries");
                 });
 
             modelBuilder.Entity("BattleShip.Domain.Boat", b =>
@@ -149,6 +113,24 @@ namespace BattleShip.Data.Migrations
                     b.ToTable("GameBoards");
                 });
 
+            modelBuilder.Entity("BattleShip.Domain.PasswordReminder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccountId");
+
+                    b.Property<string>("Key");
+
+                    b.Property<DateTime>("ReminderDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("PasswordReminders");
+                });
+
             modelBuilder.Entity("BattleShip.Domain.Player", b =>
                 {
                     b.Property<int>("Id")
@@ -199,22 +181,6 @@ namespace BattleShip.Data.Migrations
                     b.ToTable("Positions");
                 });
 
-            modelBuilder.Entity("BattleShip.Domain.Account", b =>
-                {
-                    b.HasOne("BattleShip.Domain.AccountRank", "Rank")
-                        .WithMany()
-                        .HasForeignKey("RankId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("BattleShip.Domain.AccountRecovery", b =>
-                {
-                    b.HasOne("BattleShip.Domain.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("BattleShip.Domain.Boat", b =>
                 {
                     b.HasOne("BattleShip.Domain.BoatType", "Type")
@@ -259,6 +225,14 @@ namespace BattleShip.Data.Migrations
                     b.HasOne("BattleShip.Domain.Player", "TurnPlayer")
                         .WithMany()
                         .HasForeignKey("TurnPlayerId");
+                });
+
+            modelBuilder.Entity("BattleShip.Domain.PasswordReminder", b =>
+                {
+                    b.HasOne("BattleShip.Domain.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BattleShip.Domain.Player", b =>

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using BattleShip.Data;
 using BattleShip.Domain;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using static BattleShip.SharedLibraries.BattleShipLibrary;
 
-namespace BattleShip.GameEngine
+namespace BattleShip.Engines
 {
     public static class GameEngine
     {
@@ -19,16 +18,30 @@ namespace BattleShip.GameEngine
         /// <param name="userName">UserName</param>
         /// <param name="password">Password</param>
         /// <param name="email">Email</param>
-        public static async void NewAccount(string userName, string password, string email)
+        public static void NewAccount(string userName, string password, string email)
         {
+            Account alreadyExisting = _context.Accounts.Where(a => a.UserName == userName || a.Email == email).FirstOrDefault();
+
+            if (alreadyExisting != null)
+            {
+                if (alreadyExisting.Email == email)
+                {
+                    throw new Exception("A account is already made with this email! If you not remember username and/or password, use forgot password function.");
+                }
+                else
+                {
+                    throw new Exception("Username are already in use! If you not remember password, use forgot password function.");
+                }
+            }
+
             Account account = new Account
             {
                 UserName = userName,
-                Password = SecurePasswordHasher.Hash(password),
+                Password = password,
                 Email = email
             };
 
-            await _context.Accounts.AddAsync(account);
+            _context.Accounts.Add(account);
             _context.SaveChanges();
         }
 
@@ -36,12 +49,99 @@ namespace BattleShip.GameEngine
         /// Get account with id
         /// </summary>
         /// <param name="accountId">Account id</param>
-        /// <returns>Task with Account</returns>
-        public static async Task<Account> GetAccount(int accountId)
+        /// <returns>Account</returns>
+        public static Account GetAccount(int accountId)
         {
-            return await _context.Accounts
-                            .Where(a=> a.Id == accountId)
-                            .FirstOrDefaultAsync();
+            Account account = _context.Accounts
+                            .Where(a => a.Id == accountId)
+                            .FirstOrDefault();
+
+            return account.DeepCopy();
+        }
+
+        /// <summary>
+        /// Update account
+        /// </summary>
+        /// <param name="account">Account to update</param>
+        public static void UpdateAccount(Account account)
+        {
+            _context.Accounts.Update(account);
+        }
+
+        /// <summary>
+        /// Send account recovery
+        /// </summary>
+        /// <param name="searchTerm">Search term to check against username or email</param>
+        /// <param name="recoveryLink">Url where recovery page are place</param>
+        public static void SendAccountRecovery(string searchTerm, string recoveryLink)
+        {
+            Account account = _context.Accounts.Where(a => a.UserName == searchTerm || a.Email == searchTerm).FirstOrDefault();
+
+            if(account == null)
+            {
+                throw new Exception("No account was find with this username or email!");
+            }
+
+            AccountRecovery recovery = new AccountRecovery();
+            recovery.Account = account;
+
+            _context.AccountRecoveries.Add(recovery);
+            _context.SaveChanges();
+
+            recoveryLink += "?id=" + recovery.Id + "&key=" + recovery.Key; 
+            string subject = "BattleShip.Chibidesign.se - Account recovery";
+            string text = String.Format(
+                "<p>You or someone else has ask for a account recovery for your account with username: {0}.<p/>" +
+                "<p>If you want to change password use the link below: (Expires {1})</p>" +
+                "<a href=\"{2}\">{2}</a>", 
+                account.UserName, recovery.ExpireDate.ToString("yyyy-MM-dd hh:mm"), recoveryLink);
+
+            EmailEngine.SendEmail(account.Email, subject, text);
+        }
+
+        /// <summary>
+        /// Make a account recovery
+        /// </summary>
+        /// <param name="id">Recovery index</param>
+        /// <param name="key">Recovery key</param>
+        /// <returns>AccountRecovery object</returns>
+        public static AccountRecovery AccountRecovery(int id, string key)
+        {
+            AccountRecovery recovery = _context.AccountRecoveries
+                                            .Include(r => r.Account)
+                                            .Where(r => r.Id == id && r.Key == key &&  !r.Expired)
+                                            .FirstOrDefault();
+
+            if(recovery == null)
+            {
+                throw new Exception("Didn't find any active account recovery on this link.");
+            }
+
+            return recovery.DeepCopy();
+        }
+
+        /// <summary>
+        /// Save account recovery password change
+        /// </summary>
+        /// <param name="id">Recovery index</param>
+        /// <param name="key">Recovery key</param>
+        /// <param name="password">Password to change to</param>
+        public static void SaveAccountRecovery(int id, string key, string password)
+        {
+            AccountRecovery recovery = _context.AccountRecoveries
+                                            .Include(r => r.Account)
+                                            .Where(r => r.Id == id && r.Key == key && !r.Expired)
+                                            .FirstOrDefault();
+
+            if (recovery == null)
+            {
+                throw new Exception("Didn't find any active account recovery on this link.");
+            }
+
+            recovery.Account.Password = password;
+            _context.Accounts.Update(recovery.Account);
+            _context.Remove(recovery);
+            _context.SaveChanges();
         }
 
         /// <summary>
@@ -49,24 +149,73 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="userName">UserName</param>
         /// <param name="password">Password</param>
-        /// <returns>Task with Account</returns>
-        public static async Task<Account> Login(string userName, string password)
+        /// <returns>Account</returns>
+        public static Account Login(string userName, string password)
         {
-            Account account = await _context.Accounts
+            Account account = _context.Accounts
                                         .Where(a => a.UserName == userName)
-                                        .FirstOrDefaultAsync();
+                                        .FirstOrDefault();
 
             if (account == null)
             {
                 throw new Exception("No account with this username doesn't exist!");
             }
 
-            if (!SecurePasswordHasher.Verify(password, account.Password))
+            if (!account.VerifyPassword(password))
             {
                 throw new Exception("Wrong password or username!");
             }
 
-            return account;
+            return account.DeepCopy();
+        }
+
+        /// <summary>
+        /// Save edit of account
+        /// </summary>
+        /// <param name="account">Account to save</param>
+        public static void EditAccount(Account newAccount, int sessionAccountId, string validatePassword)
+        {
+            Account account = _context.Accounts
+                                .Where(a => a.Id == newAccount.Id)
+                                .FirstOrDefault();
+
+            if (account == null)
+            {
+                throw new Exception("Account you try to change doesn't exist!");
+            }
+
+            Account session = account;
+
+            // If account to edit is not the same as session account, get session account
+            if (sessionAccountId != account.Id)
+            {
+                session = _context.Accounts
+                            .Include(a => a.Rank)
+                            .Where(a => a.Id == sessionAccountId)
+                            .FirstOrDefault();
+            }
+
+            if (session == null)
+            {
+                throw new Exception("Your session account doesn't exist!");
+            }
+
+            // If account to edit is not the same as session account, check account range
+            if(session.Id != account.Id && session.RankId == 1)
+            {
+                throw new UnauthorizedAccessException("You have no moderator access!");
+            }
+
+            // If no password changes was made, replace with existing password before save
+            if (string.IsNullOrEmpty(newAccount.Password))
+            {
+                newAccount.Password = account.Password;
+            }
+            // Else check if users existing password validates
+            else if(!session.VerifyPassword(validatePassword))
+            {
+                throw new Exception("Your password is incorrect!");
+            }
         }
 
         /// <summary>
@@ -74,15 +223,15 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="accountId">Account id from session</param>
         /// <param name="privateGame">If game is private (need invite to join)</param>
-        /// <returns>Task with gamebord's GameKey</returns>
-        public static async Task<string> NewGame(int accountId, bool privateGame = false)
+        /// <returns>Gamebord's GameKey</returns>
+        public static string NewGame(int accountId, bool privateGame = false)
         {
             string gameKey;
 
             do
             {
-                gameKey = GenerateGameKey();
-            } while (GameKeyExist(gameKey).Result);
+                gameKey = GenerateKey(6);
+            } while (GameKeyExist(gameKey));
 
             GameBoard gameBoard = new GameBoard
             {
@@ -90,25 +239,12 @@ namespace BattleShip.GameEngine
                 Private = privateGame
             };
 
-            await _context.GameBoards.AddAsync(gameBoard);
+            _context.GameBoards.Add(gameBoard);
             _context.SaveChanges();
 
             Player player;
 
             NewPlayer(gameKey, accountId, out player);
-
-            return gameKey;
-        }
-
-        /// <summary>
-        /// Generate and returns a random game key
-        /// </summary>
-        /// <returns>Random game key (string)</returns>
-        private static string GenerateGameKey()
-        {
-            string gameKey = Guid.NewGuid().ToString();
-            gameKey = Regex.Replace(gameKey, @"[^0-9a-zA-Z]+", "");
-            gameKey = gameKey.Substring(0, 6);
 
             return gameKey;
         }
@@ -150,12 +286,12 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="GameKey">Game key (string)</param>
         /// <returns>Task with validation result</returns>
-        public static async Task<bool> GameKeyExist(string gameKey)
+        public static bool GameKeyExist(string gameKey)
         {
-            string gameKeyResult = await _context.GameBoards
+            string gameKeyResult = _context.GameBoards
                                     .Where(g => g.Key == gameKey)
                                     .Select(g => g.Key)
-                                    .FirstOrDefaultAsync();
+                                    .FirstOrDefault();
 
             return (!string.IsNullOrEmpty(gameKeyResult));
         }
@@ -165,9 +301,9 @@ namespace BattleShip.GameEngine
         /// </summary>
         /// <param name="gameKey">Game key</param>
         /// <returns>Task with GameBoard</returns>
-        public static async Task<GameBoard> GetGame(string gameKey)
+        public static GameBoard GetGame(string gameKey)
         {
-            return await _context.GameBoards
+            GameBoard game = _context.GameBoards
                             // Players + Account
                             .Include(g => g.Players)
                             .ThenInclude(p => p.Account)
@@ -190,32 +326,36 @@ namespace BattleShip.GameEngine
                             .ThenInclude(b => b.Positions)
                             .ThenInclude(bp => bp.Position)
                             .Where(g => g.Key == gameKey)
-                            .FirstOrDefaultAsync();
+                            .FirstOrDefault();
+
+            return game.DeepCopy();
         }
 
         /// <summary>
         /// Get a list of all open gamebords
         /// </summary>
-        /// <returns>Task with all open gameboards</returns>
-        public static async Task<List<GameBoard>> GetOpenGames()
+        /// <returns>All open gameboards</returns>
+        public static List<GameBoard> GetOpenGames()
         {
-            List<GameBoard> openGames = await _context.GameBoards
+            List<GameBoard> openGames = _context.GameBoards
                                             .Include(g => g.Players)
                                             .ThenInclude(p => p.Account)
-                                            .Where(g => g.Private == false)
-                                            .ToListAsync();
+                                            .Where(g => g.Private == false && g.Players.Count == 1)
+                                            .ToList();
 
-            return openGames.FindAll(og => og.Players.Count == 1);
+            openGames.ForEach(og => og = og.DeepCopy());
+
+            return openGames;
         }
 
         /// <summary>
         /// Get a list of all gameboards a account plays on
         /// </summary>
         /// <param name="accountId">Account id</param>
-        /// <returns>Task with list of GameBoards</returns>
-        public static async Task<List<GameBoard>> GetAccountGames(int accountId)
+        /// <returns>List of GameBoards</returns>
+        public static List<GameBoard> GetAccountGames(int accountId)
         {
-            return await _context.GameBoards
+            List<GameBoard> games = _context.GameBoards
                     // Players + Accounts
                     .Include(g => g.Players)
                     .ThenInclude(p => p.Account)
@@ -228,7 +368,11 @@ namespace BattleShip.GameEngine
                     .ThenInclude(p => p.Boats)
                     .ThenInclude(b => b.Type)
                     .Where(g => g.Players.Any(p => p.Account.Id == accountId))
-                    .ToListAsync();
+                    .ToList();
+
+            games.ForEach(og => og = og.DeepCopy());
+
+            return games;
         }
 
         /// <summary>

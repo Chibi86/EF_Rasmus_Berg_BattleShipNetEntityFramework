@@ -7,19 +7,29 @@ namespace BattleShip.Data
     public class BattleShipContext : DbContext
     {
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountRank> AccountRanks { get; set; }
         public DbSet<GameBoard> GameBoards { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<Boat> Boats { get; set; }
         public DbSet<BoatType> BoatTypes { get; set; }
         public DbSet<Position> Positions { get; set; }
 
+        public DbSet<AccountRecovery> AccountRecoveries { get; set; }
         public DbSet<PlayerHit> PlayerHits { get; set; }
         public DbSet<BoatHit> BoatHits { get; set; }
         public DbSet<BoatPosition> BoatPositions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Account>().Ignore(a => a.GameBoards);
+            modelBuilder.Entity<Account>()
+                .Ignore(a => a.GameBoards)
+                .Property(a => a.Password)
+                .HasField("_password")
+                .IsRequired();
+
+            modelBuilder.Entity<Account>()
+                .Property(a => a.RankId)
+                .HasDefaultValue(1);
 
             modelBuilder.Entity<GameBoard>()
                 .HasKey(g => new { g.Key });
@@ -42,8 +52,7 @@ namespace BattleShip.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["BattleShipContext"].ConnectionString);
-            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = BattleShipNet; Trusted_Connection = True;");
+            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["BattleShipDB"].ConnectionString);
         }
     }
 }

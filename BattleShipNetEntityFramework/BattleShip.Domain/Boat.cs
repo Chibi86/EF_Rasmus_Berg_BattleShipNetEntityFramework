@@ -26,5 +26,21 @@ namespace BattleShip.Domain
             Hits = new List<BoatHit>();
             Positions = new List<BoatPosition>();
         }
+
+        /// <summary>
+        /// Deep copy Boat object
+        /// </summary>
+        /// <returns>Deep copy</returns>
+        public Boat DeepCopy()
+        {
+            Boat newBoat = (Boat)this.MemberwiseClone();
+
+            if(newBoat.Player != null && newBoat.Player.Account != null)
+            {
+                newBoat.Player.Account.Password = null;
+            }
+
+            return newBoat;
+        }
     }
 }

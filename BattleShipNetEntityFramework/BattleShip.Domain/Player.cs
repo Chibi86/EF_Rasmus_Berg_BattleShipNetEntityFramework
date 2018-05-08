@@ -28,5 +28,21 @@ namespace BattleShip.Domain
             AlreadyHitPositions = new List<PlayerHit>();
             HaveSeenEndScreen = false;
         }
+
+        /// <summary>
+        /// Deep copy Player object
+        /// </summary>
+        /// <returns>Deep copy</returns>
+        public Player DeepCopy()
+        {
+            Player newPlayer = (Player)this.MemberwiseClone();
+
+            if(newPlayer.Account != null)
+            {
+                newPlayer.Account.Password = null;
+            }
+
+            return newPlayer;
+        }
     }
 }
